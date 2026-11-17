@@ -1,0 +1,8 @@
+import {useRef,useMemo} from 'react';import {Canvas,useFrame} from '@react-three/fiber';import {MeshDistortMaterial,Float} from '@react-three/drei';import * as THREE from 'three';
+function Blob(){const r=useRef();useFrame(({pointer,viewport},d)=>{r.current.position.x+=(pointer.x*viewport.width*.25-r.current.position.x)*d*3;r.current.position.y+=(pointer.y*viewport.height*.25-r.current.position.y)*d*3;});
+return <Float speed={2} floatIntensity={1.2}><mesh ref={r} scale={1.6}><icosahedronGeometry args={[1,32]}/><MeshDistortMaterial color="#ffffff" roughness={.08} metalness={.25} distort={.38} speed={1.8}/></mesh></Float>}
+export function HeroScene(){return <Canvas dpr={[1,1.5]} camera={{position:[0,0,6],fov:45}} gl={{alpha:true}}><ambientLight intensity={1.1}/><directionalLight position={[4,5,4]} intensity={2.2}/><pointLight position={[-4,-2,3]} color="#C8753D" intensity={30}/><Blob/></Canvas>}
+function Streaks(){const m=useRef();const N=260;const d=useMemo(()=>Array.from({length:N},()=>({x:(Math.random()-.5)*14,y:(Math.random()-.5)*8,z:-Math.random()*40,s:.5+Math.random()*1.5})),[]);const o=useMemo(()=>new THREE.Object3D(),[]);
+useFrame((_,dt)=>{d.forEach((p,i)=>{p.z+=dt*p.s*14;if(p.z>4)p.z=-40;o.position.set(p.x,p.y,p.z);o.scale.set(1,1,1+p.s*3);o.updateMatrix();m.current.setMatrixAt(i,o.matrix)});m.current.instanceMatrix.needsUpdate=true});
+return <instancedMesh ref={m} args={[null,null,N]}><boxGeometry args={[.015,.015,1]}/><meshBasicMaterial color="#4da3ff"/></instancedMesh>}
+export function TunnelScene(){return <Canvas dpr={[1,1.5]} camera={{position:[0,0,5],fov:60}}><color attach="background" args={['#0B0B0C']}/><fog attach="fog" args={['#0B0B0C',8,40]}/><Streaks/></Canvas>}
